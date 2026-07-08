@@ -1,0 +1,6 @@
+.diary-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  touch-action: none; /* Prevent scrolling on mobile while drawing */
+}

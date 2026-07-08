@@ -1,0 +1,28 @@
+/* Global Styles for Tom Riddle's Diary */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Hide all scrollbars */
+  background-color: #f4ecd8; /* Aged parchment base */
+  /* Subtle noise texture and vignette border using radial gradient */
+  background-image: 
+    radial-gradient(circle at center, transparent 40%, rgba(139, 115, 85, 0.4) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" opacity="0.05"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23n)"/></svg>');
+  font-family: 'Sacramento', 'Reenie Beanie', cursive;
+  cursor: crosshair; /* To give it an ink pen feel */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Hide scrollbars for all elements if any exist */
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

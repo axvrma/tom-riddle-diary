@@ -1,31 +1,12 @@
-version: '3.8'
-
 services:
   diary-frontend:
-    image: nginx:alpine
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: diary-frontend
     ports:
-      - "3000:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-    restart: unless-stopped
-    depends_on:
-      - ollama-backend
-
-  ollama-backend:
-    image: ollama/ollama:latest
-    container_name: ollama-backend
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama_data:/root/.ollama
+      - "80:80"
     environment:
-      - OLLAMA_ORIGINS="*"
+      # Pass the Tailscale IP of the old PC running Ollama here
+      - OLLAMA_IP=100.x.y.z
     restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]

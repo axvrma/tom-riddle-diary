@@ -1,59 +1,53 @@
-# Tom Riddle's Diary
+# Tom Riddle's Sentient Diary
 
-A dark academia-themed, interactive web application inspired by Tom Riddle's Diary from the Harry Potter series. Write in the diary using a digital ink interface, watch your writing fade away, and receive a mysterious, sentient-like response from the diary itself.
+An interactive web application simulating Tom Riddle's diary from the Harry Potter universe. The diary allows users to write on an HTML5 canvas and receive AI-generated responses from an Ollama backend running the `gemma4:e2b` model. The UI features a parchment theme and ink-bleeding typography effects for an immersive experience.
 
-## Features
+## Architecture
 
-- **Interactive Canvas:** Draw or write your thoughts on an HTML5 canvas that simulates digital ink.
-- **Ink Fading Logic:** Your writing slowly fades away into the pages of the diary, triggering a response.
-- **Sentient AI Backend:** Powered by the `llama3.2-vision` model via Ollama, the diary reads your entries and replies with poetic, mysterious text.
-- **Dockerized Architecture:** A fully local, containerized setup ensuring easy deployment and privacy.
-- **GPU Acceleration Support:** The Ollama backend supports GPU acceleration for faster inference (requires NVIDIA setup in Docker).
+The project consists of:
+- **Frontend**: An Angular application featuring an HTML5 canvas for handwritten input, rendering AI responses with a dynamic ink-bleeding effect.
+- **Backend (External)**: An Ollama instance (typically running on a separate machine or Tailscale network) providing the AI model (`gemma4:e2b`).
 
 ## Prerequisites
 
-Before running the application, ensure you have the following installed:
+- Node.js & npm (for local frontend development)
+- Angular CLI
+- Docker & Docker Compose (for containerized deployment)
+- An Ollama instance running with the `gemma4:e2b` model.
 
-1. [Docker Desktop](https://docs.docker.com/get-docker/) (or Docker Engine + Docker Compose)
-2. (Optional but recommended) NVIDIA Container Toolkit for GPU support.
+## Setup & Execution
 
-## Getting Started
+### Running Locally (Development Mode)
 
-To launch the diary, simply run the provided startup script:
+1. Navigate to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the Angular development server (accessible over your local IP for multi-device testing):
+   ```bash
+   ng serve --host 0.0.0.0
+   ```
+4. Access the app at `http://<your-local-ip>:4200`.
 
-```bash
-./start.sh
-```
+### Running with Docker
 
-### What `start.sh` does:
-1. Verifies that Docker and Docker Compose are installed and running.
-2. Starts the Nginx frontend and Ollama backend containers via `docker-compose.yml`.
-3. Waits for the Ollama API to become healthy.
-4. Checks if the required AI model (`llama3.2-vision`) is installed in your local Ollama instance, and pulls it automatically if it isn't.
+The frontend can be containerized using the provided `docker-compose.yml`.
 
-### Accessing the Diary
-
-Once the startup script completes, open your web browser and navigate to:
-**http://localhost:3000**
-
-## Project Structure
-
-- `frontend/` - Contains the HTML, CSS, and vanilla JavaScript (app.js) for the canvas UI and fading logic.
-- `docker-compose.yml` - Defines the services: `diary-frontend` (Nginx) and `ollama-backend` (Ollama).
-- `start.sh` - Automated initialization and orchestration script.
-- `ollama_data/` - (Created at runtime) Persistent volume to store downloaded Ollama models.
-
-## Stopping the Application
-
-To stop the containers and shut down the diary, run:
-
-```bash
-docker compose down
-```
+1. Edit `docker-compose.yml` to specify the IP address of your Ollama instance (e.g., via Tailscale):
+   ```yaml
+   environment:
+     - OLLAMA_IP=100.x.y.z
+   ```
+2. Build and start the container:
+   ```bash
+   docker-compose up --build -d
+   ```
+3. The diary frontend will be accessible at `http://localhost` (or your machine's IP on port 80).
 
 ## Troubleshooting
 
-- **Backend logs:** To view the backend logs and AI inference details, run:
-  `docker logs -f ollama-backend`
-- **Docker Daemon:** If the startup script fails due to the Docker daemon not running, ensure Docker Desktop is open and fully initialized.
-- **Model Pulling:** The first time you run the app, pulling the AI model can take several minutes depending on your internet connection.
+- **Ink smudged error**: If the AI-generated text appears as "the ink seems smudged, it cannot be read", ensure that the Ollama backend is reachable at the configured IP and that the API responses are correctly parsed by the `renderTextLine` implementation in the frontend's canvas rendering logic.

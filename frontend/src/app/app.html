@@ -1,0 +1,9 @@
+<canvas 
+  #diaryCanvas 
+  class="diary-canvas"
+  (pointerdown)="startDrawing($event)"
+  (pointermove)="draw($event)"
+  (pointerup)="stopDrawing()"
+  (pointerout)="stopDrawing()"
+  (pointercancel)="stopDrawing()"
+></canvas>
