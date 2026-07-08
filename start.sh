@@ -15,7 +15,7 @@ for cmd in docker curl; do
     if ! command -v $cmd &> /dev/null; then
         echo "❌ Error: '$cmd' is not installed or not in PATH."
         if [ "$cmd" = "docker" ]; then
-            echo "   Please install Docker Desktop: https://docs.docker.com/get-docker/"
+            echo "   Please install Docker (Docker Engine or Docker Desktop)."
         fi
         exit 1
     fi
@@ -29,7 +29,7 @@ fi
 
 # 3. Check if docker daemon is running
 if ! docker info &> /dev/null; then
-    echo "❌ Error: Docker daemon is not running. Please start Docker Desktop."
+    echo "❌ Error: Docker daemon is not running. Please start your Docker service (e.g., systemctl start docker) or Docker Desktop."
     exit 1
 fi
 
