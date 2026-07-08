@@ -1,0 +1,129 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f4ebd8; /* Base yellowish parchment color */
+    font-family: 'La Belle Aurore', cursive;
+    cursor: crosshair;
+}
+
+#diary-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Aged paper texture and vignette */
+.paper-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    /* subtle noise pattern and radial gradient for vignette */
+    background-image: 
+        radial-gradient(circle, transparent 40%, rgba(100, 70, 30, 0.4) 100%),
+        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E');
+    mix-blend-mode: multiply;
+}
+
+/* Canvas for user input */
+#drawing-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    touch-action: none; /* Prevent scrolling on touch devices while drawing */
+}
+
+/* Overlay for Tom's response */
+#response-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none; /* Let clicks pass through to canvas */
+    padding: 40px;
+    font-size: 2.5rem;
+    line-height: 1.6;
+    color: #2b1f1a; /* Dark sepia/ink color */
+    white-space: pre-wrap; /* Preserve newlines */
+}
+
+/* AI generating indicator */
+#status-indicator {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+    color: #4a3c31;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 4;
+}
+
+/* 
+  Animations
+*/
+
+/* Sinking ink: when user finishes drawing */
+.sink-ink {
+    animation: sinkAnimation 1s forwards ease-in-out;
+}
+
+@keyframes sinkAnimation {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+    50% {
+        opacity: 0.6;
+        filter: blur(2px);
+    }
+    100% {
+        opacity: 0;
+        filter: blur(4px);
+    }
+}
+
+/* Bleeding ink: for incoming text from Tom */
+.char {
+    opacity: 0;
+    display: inline-block;
+    animation: bleedIn 0.8s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes bleedIn {
+    0% {
+        opacity: 0;
+        filter: blur(8px);
+        transform: scale(0.95);
+        color: rgba(43, 31, 26, 0.2);
+    }
+    50% {
+        opacity: 0.7;
+        filter: blur(2px);
+        color: rgba(43, 31, 26, 0.8);
+    }
+    100% {
+        opacity: 0.9; /* Slightly faded to look like real ink in paper */
+        filter: blur(0px);
+        transform: scale(1);
+        color: #2b1f1a;
+    }
+}
