@@ -16,6 +16,8 @@ html, body {
 
 * {
   box-sizing: border-box;
+  -webkit-user-select: none; /* Safari, iPad */
+  user-select: none;
 }
 
 /* Hide scrollbars for all elements if any exist */
