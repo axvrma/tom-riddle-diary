@@ -6,7 +6,4 @@ services:
     container_name: diary-frontend
     ports:
       - "80:80"
-    environment:
-      # Pass the Tailscale IP of the old PC running Ollama here
-      - OLLAMA_IP=100.x.y.z
     restart: unless-stopped

@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OllamaService } from './ollama.service';
+import { GeminiService } from './gemini.service';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +20,7 @@ export class App implements AfterViewInit, OnDestroy {
   private readonly fontSize = 32;
   private readonly fontName = "'Reenie Beanie', cursive";
   
-  constructor(private ollamaService: OllamaService) {}
+  constructor(private geminiService: GeminiService) {}
 
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -124,7 +124,7 @@ export class App implements AfterViewInit, OnDestroy {
       await this.streamResponse(base64Image);
     } catch (error) {
       console.error('Error getting response:', error);
-      alert(`Error from Ollama: ${error instanceof Error ? error.message : String(error)}`);
+      alert(`Error from Gemini: ${error instanceof Error ? error.message : String(error)}`);
       this.renderTextLine("...the ink seems smudged, it cannot be read...", 50, 50);
     } finally {
       this.isGenerating = false;
@@ -162,7 +162,7 @@ export class App implements AfterViewInit, OnDestroy {
     let currentLine = '';
     const lineHeight = this.fontSize * 1.5;
 
-    const generator = this.ollamaService.generateResponse(base64Image);
+    const generator = this.geminiService.generateResponse(base64Image);
     
     this.ctx.fillStyle = 'rgba(26, 26, 26, 0)'; // Start transparent for fade-in effect
     

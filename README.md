@@ -1,19 +1,19 @@
 # Tom Riddle's Sentient Diary
 
-An interactive web application simulating Tom Riddle's diary from the Harry Potter universe. The diary allows users to write on an HTML5 canvas and receive AI-generated responses from an Ollama backend running the `gemma4:e2b` model. The UI features a parchment theme and ink-bleeding typography effects for an immersive experience.
+An interactive web application simulating Tom Riddle's diary from the Harry Potter universe. The diary allows users to write on an HTML5 canvas and receive AI-generated responses from the Google Gemini API (`gemini-2.5-flash`). The UI features a parchment theme and ink-bleeding typography effects for an immersive experience.
 
 ## Architecture
 
 The project consists of:
 - **Frontend**: An Angular application featuring an HTML5 canvas for handwritten input, rendering AI responses with a dynamic ink-bleeding effect.
-- **Backend (External)**: An Ollama instance (typically running on a separate machine or Tailscale network) providing the AI model (`gemma4:e2b`).
+- **Backend**: Uses the Google Gemini API (`gemini-2.5-flash`) directly from the frontend to process handwritten inputs and generate responses.
 
 ## Prerequisites
 
 - Node.js & npm (for local frontend development)
 - Angular CLI
 - Docker & Docker Compose (for containerized deployment)
-- An Ollama instance running with the `gemma4:e2b` model.
+- A valid Google Gemini API key configured in `frontend/src/environments/environment.ts`.
 
 ## Setup & Execution
 
@@ -37,11 +37,8 @@ The project consists of:
 
 The frontend can be containerized using the provided `docker-compose.yml`.
 
-1. Edit `docker-compose.yml` to specify the IP address of your Ollama instance (e.g., via Tailscale):
-   ```yaml
-   environment:
-     - OLLAMA_IP=100.x.y.z
-   ```
+1. Ensure your Gemini API key is configured in `frontend/src/environments/environment.ts`.
+
 2. Build and start the container:
    ```bash
    docker-compose up --build -d
@@ -50,4 +47,4 @@ The frontend can be containerized using the provided `docker-compose.yml`.
 
 ## Troubleshooting
 
-- **Ink smudged error**: If the AI-generated text appears as "the ink seems smudged, it cannot be read", ensure that the Ollama backend is reachable at the configured IP and that the API responses are correctly parsed by the `renderTextLine` implementation in the frontend's canvas rendering logic.
+- **Ink smudged error**: If the AI-generated text appears as "the ink seems smudged, it cannot be read", ensure that your Gemini API key is valid, your internet connection is active, and the API responses are correctly parsed by the `renderTextLine` implementation in the frontend's canvas rendering logic.
