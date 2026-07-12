@@ -48,12 +48,16 @@ export class App implements AfterViewInit, OnDestroy {
   private resizeCanvas(): void {
     const canvas = this.canvasRef.nativeElement;
     // Keep internal canvas resolution high but CSS sizes correct
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
     
     if (this.ctx) {
+      this.ctx.scale(dpr, dpr);
       this.ctx.fillStyle = '#f4ecd8'; // Fill background to avoid transparency issues with the LLM vision
-      this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+      this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
       this.setupCanvasContext();
     }
   }
@@ -139,7 +143,7 @@ export class App implements AfterViewInit, OnDestroy {
         if (opacity <= 0) {
           // Reset canvas with parchment background
           this.ctx.fillStyle = '#f4ecd8';
-          this.ctx.fillRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+          this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
           this.setupCanvasContext();
           resolve();
         } else {
@@ -147,7 +151,7 @@ export class App implements AfterViewInit, OnDestroy {
           // Actually better to draw over with parchment color, but transparent is not possible without erasing.
           // Since it's a whiteish background, we can draw a highly transparent background-color rect.
           this.ctx.fillStyle = `rgba(244, 236, 216, 0.1)`; // #f4ecd8
-          this.ctx.fillRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+          this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
           requestAnimationFrame(fadeStep);
         }
       };
@@ -158,42 +162,59 @@ export class App implements AfterViewInit, OnDestroy {
   private async streamResponse(base64Image: string): Promise<void> {
     let currentX = 50;
     let currentY = 100;
-    const maxWidth = this.canvasRef.nativeElement.width - 100;
+    const maxWidth = window.innerWidth - 100;
     let currentLine = '';
     const lineHeight = this.fontSize * 1.5;
 
     const generator = this.geminiService.generateResponse(base64Image);
     
-    this.ctx.fillStyle = 'rgba(26, 26, 26, 0)'; // Start transparent for fade-in effect
-    
     for await (const chunk of generator) {
       const words = chunk.split('');
       for (const char of words) {
         if (char === '\n') {
-          this.renderTextLine(currentLine, currentX, currentY);
           currentLine = '';
           currentY += lineHeight;
           currentX = 50;
-        } else {
-          const metrics = this.ctx.measureText(currentLine + char);
-          if (metrics.width > maxWidth) {
-            this.renderTextLine(currentLine, currentX, currentY);
-            currentLine = char;
-            currentY += lineHeight;
-            currentX = 50;
-          } else {
-            currentLine += char;
-          }
+          continue;
         }
+
+        const metrics = this.ctx.measureText(currentLine + char);
+        if (metrics.width > maxWidth) {
+          if (char === ' ') continue; // Skip leading space on new line
+          currentLine = '';
+          currentY += lineHeight;
+          currentX = 50;
+        }
+        
+        const charX = currentX + this.ctx.measureText(currentLine).width;
+        
+        // Fire and forget the fade animation for this character
+        this.drawFadingChar(char, charX, currentY);
+        
+        currentLine += char;
+        
+        // Add intentional delay to simulate typing rhythm
+        await new Promise(resolve => setTimeout(resolve, 40));
       }
-      
-      // Update canvas progressively
-      this.renderTextLine(currentLine, currentX, currentY, true);
     }
-    // Final render to ensure it's fully opaque
-    if (currentLine) {
-      this.renderTextLine(currentLine, currentX, currentY);
-    }
+  }
+
+  private drawFadingChar(char: string, x: number, y: number): void {
+    let step = 0;
+    const maxSteps = 8;
+    
+    const fadeStep = () => {
+      if (step < maxSteps) {
+        this.ctx.fillStyle = 'rgba(26, 26, 26, 0.15)';
+        this.ctx.fillText(char, x, y);
+        step++;
+        requestAnimationFrame(fadeStep);
+      } else {
+        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillText(char, x, y);
+      }
+    };
+    requestAnimationFrame(fadeStep);
   }
 
   private renderTextLine(text: string, x: number, y: number, isPreview: boolean = false): void {
